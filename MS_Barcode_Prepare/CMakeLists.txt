@@ -11,4 +11,4 @@ FILE(GLOB files *.cpp)
 ADD_LIBRARY(MS_Barcode_Prepare SHARED ${files})
 TARGET_LINK_LIBRARIES(MS_Barcode_Prepare ${OpenCV_LIBS} ${DisCODe_LIBRARIES})
 
-INSTALL_PROCESSOR(MS_Barcode_Prepare)
+INSTALL_COMPONENT(MS_Barcode_Prepare)

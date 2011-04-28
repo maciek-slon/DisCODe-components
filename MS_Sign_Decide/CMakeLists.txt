@@ -11,4 +11,4 @@ FILE(GLOB files *.cpp)
 ADD_LIBRARY(MS_Sign_Decide SHARED ${files})
 TARGET_LINK_LIBRARIES(MS_Sign_Decide ${OpenCV_LIBS} ${DisCODe_LIBRARIES} TypesBlobs)
 
-INSTALL_PROCESSOR(MS_Sign_Decide)
+INSTALL_COMPONENT(MS_Sign_Decide)

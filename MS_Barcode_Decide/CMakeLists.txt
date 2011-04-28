@@ -11,4 +11,4 @@ FILE(GLOB files *.cpp)
 ADD_LIBRARY(MS_Barcode_Decide SHARED ${files})
 TARGET_LINK_LIBRARIES(MS_Barcode_Decide ${OpenCV_LIBS} ${DisCODe_LIBRARIES} TypesBlobs)
 
-INSTALL_PROCESSOR(MS_Barcode_Decide)
+INSTALL_COMPONENT(MS_Barcode_Decide)
