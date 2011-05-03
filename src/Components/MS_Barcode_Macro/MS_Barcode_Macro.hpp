@@ -19,7 +19,6 @@
 
 #include <vector>
 
-#include "Types/Blobs/BlobResult.hpp"
 #include "Types/DrawableContainer.hpp"
 
 namespace Processors {

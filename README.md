@@ -10,6 +10,9 @@ Dependencies
 ------------
 
 CvBasic DCL
+CvBlobs DCL
+
+OpenCV library
 
 Maintainer
 ----------
