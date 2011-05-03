@@ -2,16 +2,12 @@
 <Task>
 	<!-- List of components -->
 	<Components>
-		<Movie type="CameraUniCap" thread="Thread1" group="s1">
-				<filename>/tmp/output.avi</filename>
-		</Movie>
+		<Source type="CameraOpenCV" thread="Thread1" group="s1">
+		</Source>
 
 		<ColorConv type="CvColorConv" thread="Thread1" group="s1">
 			<type>BGR2GRAY</type>
 		</ColorConv>
-
-		<Timer type="ExecTimer" thread="Thread1" group="s1">
-		</Timer>
 
 		<M1 type="MS_Barcode_Macro" thread="Thread1" group="s1">
 			<kernel_1>
@@ -109,7 +105,7 @@
 	<!-- Threads of execution -->
 	<Executors>
 		<Thread1 type="continuous">
-			<main_component>Movie</main_component>
+			<main_component>Source</main_component>
 		</Thread1>
 
 		<Thread2 type="passive">
@@ -124,8 +120,8 @@
 
 	<!-- Event connections -->
 	<Events>
-		<Event source="Movie.newImage"     destination="ColorConv.onNewImage"/>
-		<Event source="Movie.newImage"     destination="InWindow.onNewImage"/>
+		<Event source="Source.newImage"     destination="ColorConv.onNewImage"/>
+		<Event source="Source.newImage"     destination="InWindow.onNewImage"/>
 
 		<Event source="ColorConv.newImage" destination="M1.onNewImage" type="async"/>
 		<Event source="ColorConv.newImage" destination="M2.onNewImage" type="async"/>
@@ -139,17 +135,13 @@
 
 		<Event source="Prep.newImage"      destination="Blob.onNewImage"/>
 		<Event source="Blob.newBlobs"      destination="Dec.onNewBlobs"/>
-<!--
-		<Event source="Prep.newImage"      destination="Window.onNewImage"/>
--->
-
 	</Events>
 
 	<!-- Data stream assignments -->
 	<DataStreams>
-		<Movie>
+		<Source>
 			<out_img type="out" group="Con1"/>
-		</Movie>
+		</Source>
 
 		<ColorConv>
 			<in_img type="in" group="Con1"/>
@@ -193,12 +185,6 @@
 			<in_blobs  type="in"  group="con_blobs"/>
 			<out_signs type="out" group="con_signs"/>
 		</Dec>
-
-<!--
-		<Window>
-			<in_img type="in" group="Con3"/>
-		</Window>
--->
 
 		<InWindow>
 			<in_draw type="in" group="con_signs"/>
