@@ -3,12 +3,12 @@
 	<!-- List of components -->
 	<Components>
 		<Movie type="Movie" thread="Thread1" group="s1">
-			<filename>zakaz_1.1280.avi</filename>
-		</Movie>
+			<filename>%[TASK_LOCATION]%/../data/Sign_4_HD.avi</filename>
+		</Movie> 
 
 		<ColorConv type="CvColorConv" thread="Thread1" group="s1">
 			<type>BGR2HSV</type>
-		</ColorConv>
+		</ColorConv> 
 
 		<LUT type="MS_Sign_LUT" thread="Thread1" group="s1">
 
