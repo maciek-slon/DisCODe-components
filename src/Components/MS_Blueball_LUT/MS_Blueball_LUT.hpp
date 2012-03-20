@@ -1,12 +1,12 @@
 /*!
- * \file MS_Sign_LUT.hpp
+ * \file MS_Blueball_LUT.hpp
  * \brief
  * \author mstefanc
  * \date 2010-07-05
  */
 
-#ifndef MS_SIGN_LUT_HPP_
-#define MS_SIGN_LUT_HPP_
+#ifndef MS_Blueball_LUT_HPP_
+#define MS_Blueball_LUT_HPP_
 
 #include "Component_Aux.hpp"
 #include "Component.hpp"
@@ -19,26 +19,26 @@
 #include <highgui.h>
 
 namespace Processors {
-namespace MS_Sign {
+namespace MS_Blueball {
 
 using namespace cv;
 
 /*!
- * \class MS_Sign_LUT
+ * \class MS_Blueball_LUT
  * \brief Example processor class.
  */
-class MS_Sign_LUT: public Base::Component
+class MS_Blueball_LUT: public Base::Component
 {
 public:
 	/*!
 	 * Constructor.
 	 */
-	MS_Sign_LUT(const std::string & name = "");
+	MS_Blueball_LUT(const std::string & name = "");
 
 	/*!
 	 * Destructor
 	 */
-	virtual ~MS_Sign_LUT();
+	virtual ~MS_Blueball_LUT();
 
 
 protected:
@@ -75,7 +75,7 @@ protected:
 	void onNewImage();
 
 	/// Event handler.
-	Base::EventHandler <MS_Sign_LUT> h_onNewImage;
+	Base::EventHandler <MS_Blueball_LUT> h_onNewImage;
 
 	/// Input image
 	Base::DataStreamIn <Mat> in_img;
@@ -93,20 +93,20 @@ private:
 	cv::Mat hue_img;
 	cv::Mat segments;
 
+	Base::Property<int> m_hue_threshold_1;
+	Base::Property<int> m_hue_threshold_2;
 	Base::Property<int> m_sat_threshold_1;
-	Base::Property<int> m_sat_threshold_2;
 	Base::Property<int> m_val_threshold_1;
-	Base::Property<int> m_val_threshold_2;
 };
 
-}//: namespace MS_Sign
+}//: namespace MS_Blueball
 }//: namespace Processors
 
 
 /*
  * Register processor component.
  */
-REGISTER_PROCESSOR_COMPONENT("MS_Sign_LUT", Processors::MS_Sign::MS_Sign_LUT, Common::Panel_Empty)
+REGISTER_PROCESSOR_COMPONENT("MS_Blueball_LUT", Processors::MS_Blueball::MS_Blueball_LUT, Common::Panel_Empty)
 
-#endif /* MS_SIGN_LUT_HPP_ */
+#endif /* MS_Blueball_LUT_HPP_ */
 

@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Task>
+	<!-- List of components -->
+	<Components>
+<!--		<Seq1 type="Sequence" thread="Exec1" group="s1">
+			<directory>/home/mstefanc/DisCODe/DCL/MS/data/Blueball</directory>
+			<triggered>false</triggered>
+			<loop>true</loop>			
+		</Seq1> -->
+		
+		<Seq1 type="CameraUniCap" thread="Exec1" group="s1">
+			<directory>/home/mstefanc/DisCODe/DCL/MS/data/Blueball</directory>
+			<triggered>false</triggered>
+			<loop>true</loop>			
+		</Seq1>
+
+		<ColorConv type="CvColorConv" thread="Exec1" group="s1">
+			<type>BGR2HSV</type>
+		</ColorConv> 
+
+		<LUT type="MS_Blueball_LUT" thread="Exec1" group="s1">
+			
+		</LUT>
+
+		<MorphClose type="CvMorphology" thread="Exec1" group="s1">
+			<type>MORPH_CLOSE</type>
+			<iterations>3</iterations>
+		</MorphClose>
+
+		<MorphOpen type="CvMorphology" thread="Exec1" group="s1">
+			<type>MORPH_OPEN</type>
+			<iterations>3</iterations>
+		</MorphOpen>
+
+		<Blob type="BlobExtractor" thread="Exec1" group="s1">
+			<min_size>100</min_size>
+		</Blob>
+
+		<Decide type="MS_Blueball_Decide" thread="Exec1" group="s1">
+
+		</Decide>
+
+		<Wnd1 type="CvWindow" thread="Exec3" group="s1">
+			<title>Preview</title>
+			<count>3</count>
+		</Wnd1>
+	</Components>
+
+	<!-- Threads of execution -->
+	<Executors>
+		<Exec1 type="continuous">
+			<main_component>Seq1</main_component>
+		</Exec1>
+
+		<Exec3 type="periodic">
+			<main_component>Wnd1</main_component>
+			<interval>0.2</interval>
+		</Exec3>
+	</Executors>
+
+	<!-- Event connections -->
+	<Events>
+		<Event source="Seq1.newImage" destination="ColorConv.onNewImage"/>
+		<Event source="ColorConv.newImage" destination="LUT.onNewImage"/>
+		<Event source="Blob.newBlobs"       destination="Decide.onNewBlobs"/>
+		<Event source="LUT.newImage" destination="MorphClose.onNewImage"/>
+		<Event source="MorphClose.newImage" destination="MorphOpen.onNewImage"/>
+		<Event source="MorphOpen.newImage" destination="Wnd1.onNewImage1"/>
+		<Event source="MorphOpen.newImage"  destination="Blob.onNewImage"/>
+		<Event source="Decide.newImage" destination="Wnd1.onNewImage0"/>
+		<Event source="Decide.newImage" destination="Wnd1.onNewImage2"/>
+	</Events>
+
+	<!-- Data stream assignments -->
+	<DataStreams>
+		<Seq1>
+			<out_img type="out" group="Con1"/>
+		</Seq1>
+		
+		<ColorConv>
+			<in_img  type="in"  group="Con1"/>
+			<out_img type="out" group="Con3"/>
+		</ColorConv>
+
+		<LUT>
+			<in_img       type="in"  group="Con3"/>
+			<out_segments type="out" group="Con4"/>
+		</LUT>
+		
+		<MorphClose>
+			<in_img  type="in"  group="Con4"/>
+			<out_img type="out" group="Con5"/>
+		</MorphClose>
+
+		<MorphOpen>
+			<in_img  type="in"  group="Con5"/>
+			<out_img type="out" group="Con6"/>
+		</MorphOpen>
+		
+		<Blob>
+			<in_img    type="in"  group="Con6"/>
+			<out_blobs type="out" group="con_blobs"/>
+		</Blob>		
+		
+		<Decide>
+			<in_blobs  type="in"  group="con_blobs"/>
+			<out_balls type="out" group="con_balls"/>
+		</Decide>
+		
+		<Wnd1>
+			<in_img0  type="in" group="Con1"/>
+			<in_draw0 type="in" group="con_balls"/>
+			<in_img1  type="in" group="Con6"/>
+			<in_img2  type="in" group="Con1"/>
+		</Wnd1>
+	</DataStreams>
+
+</Task>

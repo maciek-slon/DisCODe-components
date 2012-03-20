@@ -1,5 +1,5 @@
 /*!
- * \file MS_Sign_LUT.cpp
+ * \file MS_Blueball_LUT.cpp
  * \brief
  * \author mstefanc
  * \date 2010-07-05
@@ -8,51 +8,52 @@
 #include <memory>
 #include <string>
 
-#include "MS_Sign_LUT.hpp"
+#include "MS_Blueball_LUT.hpp"
 #include "Logger.hpp"
 
 namespace Processors {
-namespace MS_Sign {
+namespace MS_Blueball {
 
 // OpenCV writes hue in range 0..180 instead of 0..360
 #define H(x) (x>>1)
 
-MS_Sign_LUT::MS_Sign_LUT(const std::string & name) : Base::Component(name),
-		m_sat_threshold_1("sat_thr_1", 30, "range"),
-		m_val_threshold_1("val_thr_1", 100, "range"),
-		m_sat_threshold_2("sat_thr_2", 240, "range"),
-		m_val_threshold_2("val_thr_2", 50, "range")
+MS_Blueball_LUT::MS_Blueball_LUT(const std::string & name) : Base::Component(name),
+		m_hue_threshold_1("hue_thr_1", 180, "range"),
+		m_hue_threshold_2("hue_thr_2", 240, "range"),
+		m_sat_threshold_1("sat_thr_1", 100, "range"),
+		m_val_threshold_1("val_thr_1", 100, "range")
 {
+	m_hue_threshold_1.addConstraint("0");
+	m_hue_threshold_1.addConstraint("360");
+
+
+	m_hue_threshold_2.addConstraint("0");
+	m_hue_threshold_2.addConstraint("360");
+
 	m_sat_threshold_1.addConstraint("0");
 	m_sat_threshold_1.addConstraint("255");
 
 	m_val_threshold_1.addConstraint("0");
 	m_val_threshold_1.addConstraint("255");
 
-	m_sat_threshold_2.addConstraint("0");
-	m_sat_threshold_2.addConstraint("255");
-
-	m_val_threshold_2.addConstraint("0");
-	m_val_threshold_2.addConstraint("255");
-
+	registerProperty(m_hue_threshold_1);
+	registerProperty(m_hue_threshold_2);
 	registerProperty(m_sat_threshold_1);
 	registerProperty(m_val_threshold_1);
-	registerProperty(m_sat_threshold_2);
-	registerProperty(m_val_threshold_2);
 
-	LOG(LTRACE) << "Hello MS_Sign_LUT\n";
+	LOG(LTRACE) << "Hello MS_Blueball_LUT\n";
 }
 
-MS_Sign_LUT::~MS_Sign_LUT()
+MS_Blueball_LUT::~MS_Blueball_LUT()
 {
-	LOG(LTRACE) << "Good bye MS_Sign_LUT\n";
+	LOG(LTRACE) << "Good bye MS_Blueball_LUT\n";
 }
 
-bool MS_Sign_LUT::onInit()
+bool MS_Blueball_LUT::onInit()
 {
-	LOG(LTRACE) << "MS_Sign_LUT::initialize\n";
+	LOG(LTRACE) << "MS_Blueball_LUT::initialize\n";
 
-	h_onNewImage.setup(this, &MS_Sign_LUT::onNewImage);
+	h_onNewImage.setup(this, &MS_Blueball_LUT::onNewImage);
 	registerHandler("onNewImage", &h_onNewImage);
 
 	registerStream("in_img", &in_img);
@@ -65,32 +66,32 @@ bool MS_Sign_LUT::onInit()
 	return true;
 }
 
-bool MS_Sign_LUT::onFinish()
+bool MS_Blueball_LUT::onFinish()
 {
-	LOG(LTRACE) << "MS_Sign_LUT::finish\n";
+	LOG(LTRACE) << "MS_Blueball_LUT::finish\n";
 
 	return true;
 }
 
-bool MS_Sign_LUT::onStep()
+bool MS_Blueball_LUT::onStep()
 {
-	LOG(LTRACE) << "MS_Sign_LUT::step\n";
+	LOG(LTRACE) << "MS_Blueball_LUT::step\n";
 	return true;
 }
 
-bool MS_Sign_LUT::onStop()
-{
-	return true;
-}
-
-bool MS_Sign_LUT::onStart()
+bool MS_Blueball_LUT::onStop()
 {
 	return true;
 }
 
-void MS_Sign_LUT::onNewImage()
+bool MS_Blueball_LUT::onStart()
 {
-	LOG(LTRACE) << "MS_Sign_LUT::onNewImage\n";
+	return true;
+}
+
+void MS_Blueball_LUT::onNewImage()
+{
+	LOG(LTRACE) << "MS_Blueball_LUT::onNewImage\n";
 	try {
 		cv::Mat hsv_img = in_img.read();
 
@@ -117,47 +118,27 @@ void MS_Sign_LUT::onNewImage()
 
 			int j, k = 0;
 			for (j = 0; j < size.width; j += 3) {
-				uchar col = hsv_p[j];
+				uchar hue = hsv_p[j];
 				uchar sat = hsv_p[j + 1];
 				uchar val = hsv_p[j + 2];
 
-				// make red part in hue continous
-				if (col < H(60))
-					hue_p[k] = col + H(360);
-				else
-					hue_p[k] = col;
-
 				// label colors
-				if (col < H(20))
-					col = 255; // red
-				else if (col < H(180))
-					col = 0;
-				else if (col < H(220))
-					if (sat < 180)
-						col = 0;
-					else
-						col = 128;
-				else if (col < H(300))
-					col = 128; // blue
-				else if (col < H(320))
-					col = 0;
+				if (hue < H(m_hue_threshold_1))
+					hue = 0;
+				else if (hue < H(m_hue_threshold_2))
+					hue = 255; //blue
 				else
-					col = 255; //red
+					hue = 0;
 
 				// exclude undersaturated areas (gray levels)
 				if (sat < m_sat_threshold_1)
-					col = 0;
+					hue = 0;
 
 				// exclude too dark areas
-				if ((val < m_val_threshold_1) && (col != 255))
-					col = 0;
+				if ((val < m_val_threshold_1))
+					hue = 0;
 
-				// exclude too light areas with low saturation (white)
-				if ((val > m_val_threshold_2) && (sat < m_sat_threshold_2))
-					col = 0;
-
-				// set pixel color in result image
-				seg_p[k] = col;
+				seg_p[k] = hue;
 
 				++k;
 			}
@@ -177,9 +158,9 @@ void MS_Sign_LUT::onNewImage()
 		LOG(LERROR) << ex;
 	}
 	catch (...) {
-		LOG(LERROR) << "MS_Sign_LUT::onNewImage failed\n";
+		LOG(LERROR) << "MS_Blueball_LUT::onNewImage failed\n";
 	}
 }
 
-}//: namespace MS_Sign
+}//: namespace MS_Blueball
 }//: namespace Processors
